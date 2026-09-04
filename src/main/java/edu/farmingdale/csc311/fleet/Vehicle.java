@@ -4,7 +4,7 @@ package edu.farmingdale.csc311.fleet;
  * Base class for everything the motor pool owns. Abstract on purpose:
  * the fleet holds cars and trucks, never a plain "vehicle".
  *
- * @author YOUR NAME HERE
+ * @author Michael Hickey
  */
 public abstract class Vehicle implements Honkable {
 
@@ -44,9 +44,79 @@ public abstract class Vehicle implements Honkable {
      * a private static helper and call it three times.
      * ------------------------------------------------------------------ */
 
+    private final String vin;
+    private final String make;
+    private final String model;
+    private String color;
+    private int year;
+    private int wheels;
+    private final double engineSize;
+    private final FuelType fuelType;
+    private double fuelCapacity;
+
     protected Vehicle(String vin, String make, String model, int year, String color,
                       int wheels, double engineSize, FuelType fuelType, double fuelCapacity) {
-        throw new UnsupportedOperationException("TODO-02");
+
+        // Validate VIN
+        if (vin == null) {
+            throw new IllegalArgumentException("vin cannot be null: " + vin);
+        }
+        String trimmedVin = vin.trim();
+        if (trimmedVin.length() != 17) {
+            throw new IllegalArgumentException("vin must be exactly 17 characters: " + vin);
+        }
+        this.vin = trimmedVin.toUpperCase();
+
+        // Validate Make, Model, and Color using helper
+        this.make = validateStringField(make, "make");
+        this.model = validateStringField(model, "model");
+        this.color = validateStringField(color, "color");
+
+        // Validate Year
+        if (year < 1900 || year > 2100) {
+            throw new IllegalArgumentException("year must be between 1900 and 2100: " + year);
+        }
+        this.year = year;
+
+        // Validate Wheels
+        if (wheels < 2 || wheels > 18) {
+            throw new IllegalArgumentException("wheels must be between 2 and 18: " + wheels);
+        }
+        this.wheels = wheels;
+
+        // Validate FuelType
+        if (fuelType == null) {
+            throw new IllegalArgumentException("fuelType cannot be null");
+        }
+        this.fuelType = fuelType;
+
+        // Validate Engine Size
+        if (fuelType.hasEngine()) {
+            if (engineSize <= 0.0 || engineSize > 8.5) {
+                throw new IllegalArgumentException("engineSize must be above 0.0 and at most 8.5: " + engineSize);
+            }
+        } else {
+            if (engineSize != 0.0) {
+                throw new IllegalArgumentException("engineSize must be exactly 0.0 for electric vehicles: " + engineSize);
+            }
+        }
+        this.engineSize = engineSize;
+
+        // Validate Fuel Capacity
+        if (fuelCapacity <= 0.0) {
+            throw new IllegalArgumentException("fuelCapacity must be above 0.0: " + fuelCapacity);
+        }
+        this.fuelCapacity = fuelCapacity;
+    }
+
+    /**
+     * Private helper to validate string fields: not null, not blank, stored trimmed.
+     */
+    private static String validateStringField(String value, String fieldName) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException(fieldName + " cannot be null or blank: " + value);
+        }
+        return value.trim();
     }
 
     /* ------------------------------------------------------------------
